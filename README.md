@@ -61,37 +61,88 @@ nodemon app.js
 
 ## API Reference
 
+### Signup and Login Routes
+
 #### Sign Up
+
+```http
+  GET /api/auth/signup
+```
 
 ```http
   POST /api/auth/signup
 ```
 
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `api_key` | `string` | **Required**. Your API key |
-
+#### Login
+```http
+  GET /api/auth/login
+```
 
 ```http
   POST /api/auth/login
 ```
 
-#### Login
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `api_key` | `string` | **Required**. Your API key |
 
 
+#### Login
 
-
+### Post Comment Routes
+#### Add comment to a post
 ```http
-  GET /api/items/${id}
+  POST /api/posts/comments/:id
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id`      | `string` | **Required**. Id of item to fetch |
+| `id`      | `string` | **Required**. Id of post to add comment to|
 
+NOTE:- User Should be logged in
+
+
+### Reel Routes
+#### Show all reels
+```http
+  GET /api/reels
+```
+
+#### Post a reel
+```http
+  POST /api/reels
+```
+NOTE:- User should be logged in
+
+#### Get a reel
+```http
+  GET /api/reels/${id}
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of the reel|
+
+#### Like / Dislike a reel
+```http
+  PUT /api/reels/${id}/like
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of the reel|
+
+NOTE:- User should be logged in
+
+
+### Reel Comment Routes
+```http
+  POST /api/reels/comments/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of reel to add comment to|
+
+NOTE:- User Should be logged in
 
 ## Optimizations
 
