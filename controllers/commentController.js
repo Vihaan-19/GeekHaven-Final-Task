@@ -20,7 +20,7 @@ const add_comment =
             });
         }
         catch (e) {
-            res.status(500).send({
+            res.status(502).send({
                 status: "failure",
                 message: e.message,
             });

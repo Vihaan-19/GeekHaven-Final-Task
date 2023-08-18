@@ -23,7 +23,7 @@ const postSchema = new mongoose.Schema(
 
         category: {
             type: String,
-            default: "general"
+           // default: "general"
         },
 
         comments: [{
@@ -33,5 +33,7 @@ const postSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+postSchema.index({ category: 1 });
 
 module.exports = mongoose.model("Post", postSchema);

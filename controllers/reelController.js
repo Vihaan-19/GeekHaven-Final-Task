@@ -1,16 +1,26 @@
 const Reel = require('../models/reelModel');
+const cloudinary = require('cloudinary').v2;
 
 const create_reel =
     async (req, res) => {
         const newReel = new Reel(req.body);
         newReel.userId = req.userId;
-        newReel.video = req.file.path;
+        //Adding reels using cloudinary
+        const file = req.files.video;
+        let video_url = "";
+
+        await cloudinary.uploader.upload(file.tempFilePath, { resource_type: 'video' }, (err, result) => {
+            video_url = result.url;
+        })
+
+        newReel.video = video_url;
+
         try {
             const savedReel = await newReel.save();
             res.status(200).json(savedReel);
         }
         catch (err) {
-            res.status(501).json(err);
+            res.status(502).json(err);
         }
     }
 
@@ -21,7 +31,7 @@ const get_all_reels =
             console.log("Display All Reels");
         }
         catch (err) {
-            res.status(500).send(err);
+            res.status(501).send(err);
         }
     }
 
@@ -32,7 +42,7 @@ const get_reel =
             res.status(200).json(reel);
         }
         catch (err) {
-            res.status(500).json(err);
+            res.status(501).json(err);
         }
     }
 
@@ -50,7 +60,7 @@ const likeDislike_reel =
             }
         }
         catch (err) {
-            res.status(500).json(err);
+            res.status(502).json(err);
         }
     }
 

@@ -1,33 +1,58 @@
 const Post = require("../models/postModel");
 const User = require("../models/userModel");
 const Comment = require("../models/commentModel");
+const cloudinary = require('cloudinary').v2;
 
-const create_post =
-    async (req, res) => {
-        const newPost = new Post(req.body);
-        newPost.userId = req.userId;
-        newPost.image = req.file.path;
-        try {
-            const savedPost = await newPost.save();
-            res.status(200).json(savedPost);
+const create_post = async (req, res) => {
+    try {
+        if (!req.files) {
+            return res.status(406).send("Please add an image");
         }
-        catch (err) {
-            res.status(500).json(err);
-        }
+
+        // Adding images using cloudinary
+        const file = req.files.image;
+        let img_url = "";
+
+        await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
+            if (err) {
+                return res.status(500).send("Error uploading image");
+            }
+            img_url = result.url;
+        });
+
+        const { description, category } = req.body;
+
+        const newPost = new Post({ description, category, userId: req.userId, image: img_url });
+        await newPost.save();
+
+        res.status(200).json(newPost); // Send response after saving the post
     }
+    catch (err) {
+        res.status(500).send(err);
+    }
+};
+
+
 
 const update_post =
     async (req, res) => {
         try {
             const post = await Post.findById(req.params.id);
-            console.log(post.userId + " " + req.userId);
             if (post.userId == req.userId) {
                 await post.updateOne({ $set: req.body });
-                //If user sends a file
-                console.log(req.file);
-                if (req.file) {
-                    await post.updateOne({ $set: { "image": req.file.path } });
-                }
+
+                //Adding images using cloudinary
+                const file = req.files.image;
+                let img_url = "";
+
+                await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
+                    img_url = result.url;
+                })
+
+                //If user sends a image
+                if (img_url)
+                    await post.updateOne({ $set: { "image": img_url } });
+
                 res.status(200).json("post has been updated");
             }
             else
@@ -91,16 +116,17 @@ const likeDislike_post =
         }
     }
 
+
 //Adding Category Post
 const get_category_post =
     async (req, res) => {
         try {
             const category = req.body.category;
-            const category_posts = await Post.find({ category });
+            const category_posts = await Post.find({ category: category });
             res.json(category_posts)
         }
         catch (err) {
-            res.status(405).send(err);
+            res.status(501).send(err);
         }
     }
 
@@ -110,7 +136,7 @@ const get_category_post =
 const get_all_posts =
     async (req, res) => {
         try {
-            const currentUser = await User.findById(req.body.userId);
+            const currentUser = await User.findById(req.userId);
             const userPosts = await Post.find({ userId: currentUser._id });
             const friendPosts = await Promise.all(
                 currentUser.following.map((friendId) => {

@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middlewares/auth');
 const reelCommentController = require("../controllers/reelCommentController");
 
-//router.post("/", authController.verify, commentController.addComment);
-router.post('/:id', reelCommentController.add_comment_reel);
-// router.get("/:id", commentController.get_post);
+
+router.post('/:id', auth, reelCommentController.add_comment_reel);
 
 module.exports = router;

@@ -7,6 +7,7 @@ const add_comment_reel =
         console.log("Hi");
         try {
             const commentToSave = new ReelComment(req.body);
+            commentToSave.userId=req.userId;
             commentToSave.reelId = req.params.id;
             const savedcomment = await commentToSave.save();
             await Reel.findOneAndUpdate(

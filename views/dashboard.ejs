@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard</title>
+</head>
+
+<body>
+    <style>
+        #chat-container {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+
+    <h1>Welcome To Your Dashboard <%= userData.name %>
+    </h1>
+
+
+    <div class="chat-container"> </div>
+
+    <form action="" id="chat-form">
+        <input type="text" name="message" placeholder="Enter Message" id="message">
+        <input type="submit" value="Send">
+    </form>
+
+
+    <div>
+        <ul>
+            <% if(users.length>0){
+                users.forEach(e => {
+                %>
+                <li>
+                    <%= e.name %>
+                </li>
+                <% }) } %>
+        </ul>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io('/user-namespace');
+        $(document).ready(() => {
+        })
+    </script>
+</body>
+
+</html>

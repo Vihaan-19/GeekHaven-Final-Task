@@ -1,6 +1,6 @@
 const User = require('../models/userModel');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const cloudinary = require('cloudinary').v2;
 //Add change password feature
 //Add Feature to change description
 
@@ -41,62 +41,35 @@ const follow_user =
         //When user to follow is not same as current user 
         if (req.userId !== req.params.id) {
             try {
-                const userToFollow = await User.findById(req.params.id);
+                const userToFollowUnfollow = await User.findById(req.params.id);
                 const currentUser = await User.findById(req.userId);
                 console.log(currentUser);
 
-                //Check already following
-                if (!userToFollow.followers.includes(req.userId)) {
+                //Check already following (if user is not present )
+                //Update followers and following lists
+                if (!userToFollowUnfollow.followers.includes(req.userId)) {
                     //Add user to following list
-                    await userToFollow.updateOne({ $push: { followers: req.userId } });
+                    await userToFollowUnfollow.updateOne({ $push: { followers: req.userId } });
                     await currentUser.updateOne({ $push: { following: req.params.id } });
                     res.status(200).json("user has been followed");
                 }
 
-                else
-                    res.status(403).json("you already follow this user");
+                //Update followers and following list
+                else {
+                    //Remove user from the following list
+                    await userToFollowUnfollow.updateOne({ $pull: { followers: req.userId } });
+                    await currentUser.updateOne({ $pull: { following: req.params.id } });
+                    res.status(200).json("user has been unfollowed");
+                }
             }
-
             catch (err) {
-                console.log(err);
                 res.status(500).json(err);
             }
         }
 
         //When same user
         else
-            res.status(403).json("you cant follow yourself");
-
-    }
-
-
-//unfollow a user
-const unfollow_user =
-    async (req, res) => {
-
-        //When user to unfollow is not same as current user
-        if (req.userId !== req.params.id) {
-            try {
-                const userToUnfollow = await User.findById(req.params.id);
-                const currentUser = await User.findById(req.userId);
-
-                if (userToUnfollow.followers.includes(req.userId)) {
-                    await userToUnfollow.updateOne({ $pull: { followers: req.userId } });
-                    await currentUser.updateOne({ $pull: { following: req.params.id } });
-                    res.status(200).json("user has been unfollowed");
-                }
-
-                else
-                    res.status(403).json("you dont already follow this user");
-
-            }
-            catch (err) {
-                res.status(500).json(err);
-            }
-        }
-
-        else
-            res.status(403).json("you cant unfollow yourself");
+            res.status(405).json("You cant follow/unfollow yourself");
 
     }
 
@@ -129,8 +102,17 @@ const update_user =
 
                 await user.updateOne({ $set: req.body });
 
-                if(req.file)
-                await user.updateOne({ $set: { "image": req.file.path } });
+                if (img_url) {
+                    //Adding images using cloudinary
+                    const file = req.files.image;
+                    let img_url = "";
+
+                    await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
+                        img_url = result.url;
+                    })
+
+                    await user.updateOne({ $set: { "image": img_url } });
+                }
 
                 res.status(200).json(user);
             }
@@ -139,9 +121,9 @@ const update_user =
         }
 
         catch (err) {
-            //     res.status(500).json(err);
+            res.status(500).json(err);
         }
     }
 
 
-module.exports = { get_user, delete_user, follow_user, unfollow_user, update_user };
+module.exports = { get_user, delete_user, follow_user, update_user };

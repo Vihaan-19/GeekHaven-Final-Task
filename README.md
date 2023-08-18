@@ -11,7 +11,7 @@ Final Task of GeekHaven WebD Wing.
 
 - [Features](#features)
 - [Installation](#installation)
-- [API](#api%20reference)
+- [API Reference](#api-reference)
 - [Optimizations](#optimizations)
 
 
@@ -28,6 +28,8 @@ Final Task of GeekHaven WebD Wing.
 - Cross platform
 - Create, upload reels
 - Comment on post and reels
+- Using Cloudinary for uploading images and reels (ps it takes some time to upload reels)
+- 
 
 
 
@@ -82,12 +84,122 @@ nodemon app.js
   POST /api/auth/login
 ```
 
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `api_key` | `string` | **Required**. Your API key |
+
+### User Routes
+
+#### Logged In User-Profile
+```http
+  GET /api/users
+```
+
+#### Update Profile
+```http
+  PUT /api/users/${id}/update
+```
 
 
-#### Login
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of logged in user to update |
+
+NOTE:- User Should be logged in
+
+#### Delete Profile
+```http
+  DELETE /api/users/${id}/delete
+```
+
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of logged in user to delete |
+
+NOTE:- User Should be logged in
+
+
+#### Follow / Unfollow a Profile
+```http
+  PUT /api/users/${id}/follow
+```
+
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of profile to follow/unfollow |
+
+NOTE:- User Should be logged in
+
+
+
+### Post Routes
+#### Get a post
+```http
+  GET /api/posts/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of post  |
+
+
+
+#### Get a post by category
+```http
+  GET /api/posts
+```
+
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `category`|`string`|**Required**. Category of post
+
+#### Get all posts of following {change this ttle}
+```http
+  GET /api/posts/timeline/all
+```
+
+#### Create a post
+```http
+  POST /api/posts
+```
+NOTE:- User Should be logged in
+
+#### Update user post
+```http
+  PUT /api/posts/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of post to update|
+
+NOTE:- User Should be logged in
+
+#### Delete User Post
+```http
+  DELETE /api/posts/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of post to delete|
+
+NOTE:- User Should be logged in
+
+
+#### Like / Dislike a post
+```http
+  PUT /api/users/${id}/like
+```
+
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of post to like / dislike |
+
+NOTE:- User Should be logged in
+
+
 
 ### Post Comment Routes
 #### Add comment to a post
@@ -124,13 +236,11 @@ NOTE:- User should be logged in
 
 #### Like / Dislike a reel
 ```http
-  PUT /api/reels/${id}/like
+  GET /api/reels/${id}/like
 ```
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `id`      | `string` | **Required**. Id of the reel|
-
-NOTE:- User should be logged in
 
 
 ### Reel Comment Routes

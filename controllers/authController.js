@@ -5,24 +5,31 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv");
 const cookieParser = require('cookie-parser');
+const cloudinary = require('cloudinary').v2;
 
 router.use(express.json());
 router.use(cookieParser());
 dotenv.config();
 //This file will export the signup and login function to authRoutes
+
 const signup_get =
     (req, res) => {
-        res.send('User Signup Page');
+        // res.send('User Signup Page');
+        try {
+            res.render('signup')
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 const login_get =
     (req, res) => {
-        res.send('User Login Page')
+        res.render('login')
     }
 
 const signup_post =
     async (req, res) => {
-
+        // console.log(req);
         try {
             //getting data from the body
             const { name, username, email, password, bio } = req.body;
@@ -38,14 +45,23 @@ const signup_post =
                 res.status(400).send('User Already Exists');
 
             else {
+
                 //encrypt password 
                 const hashedPassword = await bcrypt.hash(password, 10);
+
                 //Create New User
                 //if user has provided an image
-                if (req.file) {
+                if (req.files) {
+                    const file = req.files.image;
+                    //Adding images using cloudinary
+                    let img_url = "";
+                    await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
+                        img_url = result.url;
+                    })
+
                     var newUser = await User.create({
                         name,
-                        image: req.file.path,
+                        image: img_url,
                         username,
                         bio,
                         email,
@@ -63,7 +79,6 @@ const signup_post =
                         password: hashedPassword
                     })
                 }
-
                 //generate token
                 var token = jwt.sign({ id: newUser._id }, process.env.secret_key, { expiresIn: "2h" });
                 newUser.token = token;
@@ -71,6 +86,7 @@ const signup_post =
                 newUser.password = undefined;
 
                 res.status(200).json(newUser);
+                // res.render('signup', { success: 'Sign Up successful' })
             }
         }
 
@@ -88,6 +104,7 @@ const login_post =
                 res.status(400).send('All fields required');
             //check if user exists in database
             const loggedInUser = await User.findOne({ email })
+
 
             //verify the entered password from the user.password
             if (loggedInUser && (await bcrypt.compare(password, loggedInUser.password))) {
