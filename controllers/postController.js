@@ -121,9 +121,17 @@ const likeDislike_post =
 const get_category_post =
     async (req, res) => {
         try {
-            const category = req.body.category;
-            const category_posts = await Post.find({ category: category });
-            res.json(category_posts)
+    
+            const category = req.query.category; 
+            const page = parseInt(req.query.page) || 1; // Default to page 1 if not specified
+            const perPage = parseInt(req.query.perPage) || 10; // Default to 10 posts per page
+            const skip = (page - 1) * perPage;
+
+            const category_posts = await Post.find({ category: category })
+                .skip(skip)
+                .limit(perPage);
+
+            res.json(category_posts);
         }
         catch (err) {
             res.status(501).send(err);
@@ -136,11 +144,24 @@ const get_category_post =
 const get_all_posts =
     async (req, res) => {
         try {
+            //Added Pagination to show all posts
+            const page = parseInt(req.query.page) || 1;
+            const perPage = parseInt(req.query.perPage) || 10; // Displaying 10 posts per page
+            const skip = (page - 1) * perPage;
+
+
             const currentUser = await User.findById(req.userId);
-            const userPosts = await Post.find({ userId: currentUser._id });
+            const userPosts = await Post.find({ userId: currentUser._id })
+                .skip(skip)
+                .limit(perPage);
+
+
+
             const friendPosts = await Promise.all(
                 currentUser.following.map((friendId) => {
-                    return Post.find({ userId: friendId });
+                    return Post.find({ userId: friendId })
+                        .skip(skip)
+                        .limit(perPage);
                 })
             );
             res.json(userPosts.concat(...friendPosts))

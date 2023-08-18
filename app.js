@@ -1,25 +1,15 @@
-//Using helmet for security
 const express = require("express");
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server);
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const helmet = require('helmet');
+const PORT = 3000;
 
-// <-------- For chats --------->
-
-// const io = require('socket.io')(app);
-
-// var usp = io.of('/user-namspace');
-
-// usp.on('connection', socket => {
-//     console.log("User Connected");
-
-//     socket.on('disconnect', () => {
-//         console.log("User Disconnected");
-//     })
-// })
-
-
+// Adding Routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
@@ -42,18 +32,17 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-const PORT = 3000;
-
-//Adding helmet for security of api
-app.use(helmet());
 
 //Connected to Mongoose database and server
 mongoose.connect(process.env.mongo_uri, { useUnifiedTopology: true })
     .then((result) => {
-        app.listen(PORT, () => { console.log(`Connected to server ${PORT} and database `) });
+        server.listen(PORT, () => { console.log(`Connected to server ${PORT} and database `) });
     })
     .catch((err) => { console.log(err) });
 
+
+//Adding helmet for security of api
+app.use(helmet());
 
 // < ----- For Sign - Up, Login Page and Chat Feature----->
 const bodyParser = require('body-parser');
@@ -62,12 +51,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
-
 app.use(express.json());
 
-
 app.use(fileUpload({ useTempFiles: true }));
-
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -81,9 +67,20 @@ app.use("/api/reels/comments", reelCommentRoutes);
 app.use("/api/chat", chatRoutes);
 
 
+// <-------- For chats --------->
+io.on('connection', (socket) => {
+    console.log("User Connected");
+
+    socket.on('disconnect', () => {
+        console.log("User Disconnected");
+    })
+})
+
+
 app.get('/', (req, res) => {
     res.send("Welcome to Home Page");
 })
+
 
 
 
