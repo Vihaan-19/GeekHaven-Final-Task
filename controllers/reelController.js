@@ -29,17 +29,6 @@ const get_all_reels =
     async (req, res) => {
         try {
             //Show all reels apply pagination
-            console.log("Display All Reels");
-        }
-        catch (err) {
-            res.status(501).send(err);
-        }
-    }
-
-const get_reel =
-    async (req, res) => {
-        try {
-            //Show all reels apply pagination
             const page = parseInt(req.query.page) || 1; // Go to page 1 if not specified
             const perPage = parseInt(req.query.perPage) || 10; // Get to 10 posts per page
             const skip = (page - 1) * perPage;
@@ -59,6 +48,17 @@ const get_reel =
         }
         catch (err) {
             res.status(501).send(err);
+        }
+    }
+
+const get_reel =
+    async (req, res) => {
+        try {
+            const reel = await Reel.findById(req.params.id);
+            res.status(200).json(reel);
+        }
+        catch (err) {
+            res.status(501).json(err);
         }
     }
 
