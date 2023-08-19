@@ -4,6 +4,7 @@
 A social media backend made using NodeJS, Express, and MongoDB.
 Final Task of GeekHaven WebD Wing.
 
+Postman Documentation https://documenter.getpostman.com/view/28458908/2s9Y5SWRBu
 
 
 
