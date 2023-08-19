@@ -72,11 +72,12 @@ const delete_post =
             if (post.userId === req.userId) {
 
                 //Deleting Image of Post
-                //add image url to the req.query
-                const imageUrl = req.query.imageUrl;
+                //Getting the image link from post
+                const imageUrl = post.image;
                 const urlArray = imageUrl.split('/');
                 const image = urlArray[urlArray.length - 1];
                 const imageName = image.split('.')[0];
+                //Getting the name of image and deleting from cloudinary
                 cloudinary.uploader.destroy(imageName, (err, result) => {
                     console.log(err, result);
                 })
