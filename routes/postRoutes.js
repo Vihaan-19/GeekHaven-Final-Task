@@ -13,6 +13,7 @@ router.post('/', auth, postController.create_post);
 router.put('/:id', auth, postController.update_post);
 
 //delete a post, /:id of post
+//add image url to the req.query
 router.delete('/:id', auth, postController.delete_post);
 
 //get a post, /:id of post

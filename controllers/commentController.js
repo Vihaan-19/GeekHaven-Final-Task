@@ -6,9 +6,11 @@ const add_comment =
     async (req, res) => {
         try {
             const commentToSave = new Comment(req.body);
+            //Setting the keys with values of comment
             commentToSave.postId = req.params.id;
             const savedcomment = await commentToSave.save();
 
+            //Adding the comment to post
             await Post.findOneAndUpdate(
                 { _id: req.params.id },
                 { $push: { comments: savedcomment._id } }

@@ -6,9 +6,8 @@ const { Server } = require('socket.io');
 const io = new Server(server);
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const helmet = require('helmet');
-const PORT = 3000;
 
+const PORT = 3000;
 // Adding Routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -16,6 +15,7 @@ const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const reelRoutes = require('./routes/reelRoutes');
 const reelCommentRoutes = require('./routes/reelCommentRoutes');
+const communityRoutes = require('./routes/communityRoutes');
 
 // <----- Adding chat routes------>
 const chatRoutes = require('./routes/chatRoutes');
@@ -41,8 +41,6 @@ mongoose.connect(process.env.mongo_uri, { useUnifiedTopology: true })
     .catch((err) => { console.log(err) });
 
 
-//Adding helmet for security of api
-app.use(helmet());
 
 // < ----- For Sign - Up, Login Page and Chat Feature----->
 const bodyParser = require('body-parser');
@@ -61,6 +59,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/posts/comments", commentRoutes);
 app.use("/api/reels", reelRoutes);
 app.use("/api/reels/comments", reelCommentRoutes);
+app.use("/api/community", communityRoutes);
 
 
 // <---- Add Chat Routes------>

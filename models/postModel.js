@@ -23,13 +23,18 @@ const postSchema = new mongoose.Schema(
 
         category: {
             type: String,
-           // default: "general"
+            // default: "general"
         },
 
         comments: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "comment"
-        }]
+        }],
+
+        //Feature of community post
+        communityId: {
+            type: String
+        }
     },
     { timestamps: true }
 );

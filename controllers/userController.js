@@ -1,14 +1,13 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 const cloudinary = require('cloudinary').v2;
-//Add change password feature
-//Add Feature to change description
 
 //get a user
 const get_user =
     async (req, res) => {
         try {
             const user = await User.findById(req.userId);
+            //Show everything except password and updated at
             const { password, updatedAt, ...other } = user._doc;
             res.status(200).json(other);
         }
@@ -21,17 +20,17 @@ const get_user =
 //delete user
 const delete_user =
     async (req, res) => {
-        if (req.userId === req.params.id) {
-            try {
+        try {
+            if (req.userId === req.params.id) {
                 await User.findByIdAndDelete(req.params.id);
                 res.status(200).json("Account has been deleted");
             }
-            catch (err) {
-                return res.status(500).json(err);
-            }
+            else
+                res.status(403).json("You can delete only your account!");
         }
-        else
-            return res.status(403).json("You can delete only your account!");
+        catch (err) {
+            res.status(500).json(err);
+        }
     }
 
 
@@ -91,14 +90,14 @@ const update_user =
                         const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
                         await user.updateOne({ $set: { password: hashedPassword } });
                     }
-                    else {
+                    else
                         res.status(401).send("Wrong Password");
-                    }
+
                 }
 
-                else if (req.body.newPassword || req.body.currentPassword) {
+                else if (req.body.newPassword || req.body.currentPassword)
                     res.send("Please enter new password and current password");
-                }
+
 
                 await user.updateOne({ $set: req.body });
 

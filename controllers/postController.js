@@ -6,7 +6,7 @@ const cloudinary = require('cloudinary').v2;
 const create_post = async (req, res) => {
     try {
         if (!req.files) {
-            return res.status(406).send("Please add an image");
+            res.status(406).send("Please add an image");
         }
 
         // Adding images using cloudinary
@@ -15,7 +15,7 @@ const create_post = async (req, res) => {
 
         await cloudinary.uploader.upload(file.tempFilePath, (err, result) => {
             if (err) {
-                return res.status(500).send("Error uploading image");
+                res.status(500).send("Error uploading image");
             }
             img_url = result.url;
         });
@@ -71,6 +71,16 @@ const delete_post =
             //The current user can only delete his/her post
             if (post.userId === req.userId) {
 
+                //Deleting Image of Post
+                //add image url to the req.query
+                const imageUrl = req.query.imageUrl;
+                const urlArray = imageUrl.split('/');
+                const image = urlArray[urlArray.length - 1];
+                const imageName = image.split('.')[0];
+                cloudinary.uploader.destroy(imageName, (err, result) => {
+                    console.log(err, result);
+                })
+
                 //Deleting all comments associated with the post
                 await Comment.deleteMany({ postId: post._id });
                 //Deleting the post
@@ -121,10 +131,10 @@ const likeDislike_post =
 const get_category_post =
     async (req, res) => {
         try {
-    
-            const category = req.query.category; 
-            const page = parseInt(req.query.page) || 1; // Default to page 1 if not specified
-            const perPage = parseInt(req.query.perPage) || 10; // Default to 10 posts per page
+
+            const category = req.query.category;
+            const page = parseInt(req.query.page) || 1; // Go to page 1 if not specified
+            const perPage = parseInt(req.query.perPage) || 10; // Get to 10 posts per page
             const skip = (page - 1) * perPage;
 
             const category_posts = await Post.find({ category: category })
@@ -154,7 +164,6 @@ const get_all_posts =
             const userPosts = await Post.find({ userId: currentUser._id })
                 .skip(skip)
                 .limit(perPage);
-
 
 
             const friendPosts = await Promise.all(

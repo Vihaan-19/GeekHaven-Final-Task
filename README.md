@@ -84,7 +84,6 @@ nodemon app.js
   POST /api/auth/login
 ```
 
-
 ### User Routes
 
 #### Logged In User-Profile
@@ -254,7 +253,10 @@ NOTE:- User should be logged in
 
 NOTE:- User Should be logged in
 
-## Optimizations
 
-What optimizations did you make in your code? E.g. refactors, performance improvements, accessibility
+
+
+
+
+
 
