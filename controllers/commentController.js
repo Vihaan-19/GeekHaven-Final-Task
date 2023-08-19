@@ -1,13 +1,28 @@
 const Comment = require("../models/commentModel");
 const Post = require("../models/postModel");
-const User = require("../models/userModel");
+
+const get_all_comments =
+    async (req, res) => {
+        try {
+            const postId = req.params.id;
+
+            const post = await Post.findById(postId).populate({ path: 'comments' });
+            if (post.comments.length > 0)
+                return res.status(200).json(post.comments);
+
+            else
+                return res.status(200).json("There are no comments");
+
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    }
 
 const add_comment =
     async (req, res) => {
         try {
-            const commentToSave = new Comment(req.body);
-            //Setting the keys with values of comment
-            commentToSave.postId = req.params.id;
+
+            const commentToSave = new Comment({ userId: req.userId, comment: req.body.comment, postId: req.params.id });
             const savedcomment = await commentToSave.save();
 
             //Adding the comment to post
@@ -29,6 +44,6 @@ const add_comment =
         }
     }
 
-module.exports = { add_comment };
+module.exports = { get_all_comments, add_comment };
 
 
